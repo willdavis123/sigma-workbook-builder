@@ -27,24 +27,47 @@ initial-call-brief   — extracts a structured brief: business context,
 Success → `Gong Calls Enriched`) — no per-person source mapping
 needed, just per-person credentials.
 
-## Quickstart (for anyone on the team cloning this)
+## Quickstart (for anyone on the team — no git or terminal experience needed)
 
-```bash
-git clone https://github.com/willdavis123/sigma-workbook-builder.git
-cd sigma-workbook-builder/skills/claude-code
-cp .env.example .env
-# fill in your own SIGMA_BASE_URL / SIGMA_CLIENT_ID / SIGMA_CLIENT_SECRET
-# (Administration → APIs and Tokens in Sigma)
-bash scripts/api/whoami.sh    # confirms auth is wired up correctly
-```
+1. **Get the files.** On the repo's GitHub page, click the green **Code**
+   button → **Download ZIP**. Unzip it — you now have a
+   `sigma-workbook-builder` folder on your machine. No git required.
+2. **Get Sigma API credentials.** Either ask Will for a shared set
+   already set up for the team, or create your own in Sigma under
+   **Administration → APIs and Tokens** (needs admin access — ask Will
+   if you don't have it). *See [Will's separate credential setup guide
+   with screenshots — link TBD] for step-by-step images.*
+3. **Add your credentials.** Go into `skills/claude-code/`, find
+   `.env.example`, make a copy of it in the same folder, rename the
+   copy to `.env`, and open it in any text editor. Paste your
+   Client ID and Client Secret into the matching lines, and check the
+   comments in that file for which `SIGMA_BASE_URL` matches your org's
+   region.
+4. **Confirm it's working.** Open **Terminal** (Mac: Spotlight search
+   → "Terminal"). Type `cd ` (with a space after it), then drag the
+   `skills/claude-code` folder from Finder into the Terminal window —
+   it'll paste the path in — then press Enter. Now type:
+   ```
+   bash scripts/api/whoami.sh
+   ```
+   and press Enter. **What this does, in plain English:** it's a tiny
+   script that uses the credentials you just added to ask Sigma "who
+   am I logged in as?" — nothing gets built or changed, it's purely a
+   connection test. If it prints back your Sigma user info, you're set.
+   If it errors, the likely cause is the region (`SIGMA_BASE_URL`) in
+   your `.env` being wrong — double check against the comments in
+   `.env.example`.
+5. **Open it in Claude Code.** Open the Claude Code desktop app, and
+   open the `skills/claude-code` folder (same one from step 4). Then
+   just type something like: *"pull the Acme call from Gong and build
+   a workbook off it."* You'll always see and approve the extracted
+   call brief before anything actually gets built.
+6. **That's it.** You never need to touch git, commit, or push
+   anything — just review the workbook Claude Code builds via the link
+   it gives you back in Sigma.
 
-Then open the folder in Claude Code and say something like *"pull the
-Acme call from Gong and build a workbook off it."* `CLAUDE.md` routes
-that straight into `initial-call-brief` first — you'll always see and
-approve the extracted brief before anything gets built.
-
-No transcript to test with yet? Paste one directly instead of naming
-a Gong call — same flow, skips the lookup step.
+No transcript to test with yet? Just paste one directly instead of
+naming a Gong call — same flow, skips the lookup step.
 
 ## How it builds
 
@@ -105,3 +128,15 @@ engine's own test cases.
 Workbook-building started from a colleague's Claude Code project
 ([RyanLauderback/ryan-workbook-skill](https://github.com/RyanLauderback/ryan-workbook-skill)) —
 attribution kept in `skills/claude-code/README.md` and `CLAUDE.md`.
+
+## Maintaining this repo (Will only — not needed by anyone using it)
+
+Colleagues never touch git — only whoever's updating the repo itself
+does. After making changes locally:
+```bash
+git add -A
+git commit -m "describe what changed"
+git push
+```
+Anyone using the repo just re-downloads the ZIP to pick up updates —
+no git needed on their end either.
