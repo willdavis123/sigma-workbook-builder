@@ -18,10 +18,9 @@ initial-call-brief   — extracts a structured brief: business context,
                         data specifics, Open Decisions. ALWAYS pauses
                         for your review before anything downstream runs.
         │
-        ├──▶ workbook builder   → the actual Sigma workbook
-        └──▶ sigma-use-cases (separate, pre-existing skill)
-             → complementary use-case slide, fed the account
-               name/industry from the brief
+        ├──▶ skills/claude-code (the primary engine) → the actual Sigma workbook
+        └──▶ sigma-use-cases, offered after the build, fed the account
+             name/industry already captured in the brief → PPTX + JSON
 ```
 
 **Everyone on the team pulls from the same org/data model** (Customer
@@ -31,7 +30,7 @@ needed, just per-person credentials.
 ## Quickstart (for anyone on the team cloning this)
 
 ```bash
-git clone <this repo>
+git clone https://github.com/willdavis123/sigma-workbook-builder.git
 cd sigma-workbook-builder/skills/claude-code
 cp .env.example .env
 # fill in your own SIGMA_BASE_URL / SIGMA_CLIENT_ID / SIGMA_CLIENT_SECRET
@@ -47,27 +46,27 @@ approve the extracted brief before anything gets built.
 No transcript to test with yet? Paste one directly instead of naming
 a Gong call — same flow, skips the lookup step.
 
-## How it builds — two engines, same conventions underneath
+## How it builds
 
-The pipeline above is the front door; either of these does the actual
-workbook construction once a brief's approved:
+`skills/claude-code/` is the only engine used for real builds — a full
+Claude Code project authoring raw Sigma API specs directly (exact
+chart/KPI/control specs, a 13-check pre-POST validator,
+`scripts/api/` helpers for discovery, transcript lookup, and use-case
+generation). This is what the quickstart above sets up, and what
+`CLAUDE.md` routes every real request through.
 
-- **`skills/claude-code/`** — the primary engine. Full Claude Code
-  project (forked from a colleague's, [RyanLauderback/ryan-workbook-skill](https://github.com/RyanLauderback/ryan-workbook-skill))
-  authoring raw Sigma API specs directly — exact chart/KPI/control
-  specs, a 13-check pre-POST validator, `scripts/api/` helpers for
-  discovery and lookup (including the Gong transcript pull). This is
-  what the quickstart above sets up.
-- **`skills/claude-ai/`** — a lighter Claude.ai / Cowork version using
-  the Sigma MCP connector's `start_workbook_plan`/`build_workbook`
-  tools instead of raw API calls. No credentials needed, but Sigma's
-  own Builder does the actual construction rather than us controlling
-  it directly — useful for a quick test without touching Claude Code
-  at all, less precise than the primary engine.
+`skills/claude-ai/` still exists in this repo, but **only as a
+chat-only sandbox for quick, low-stakes testing directly in Claude.ai**
+— no credentials needed, using the Sigma MCP connector's own Builder
+instead of controlling the spec directly. It's how the pipeline logic
+got validated early on. Don't point real customer builds at it —
+`skills/claude-code/` is the one with actual control over what gets
+built.
 
-Both encode the same chart/KPI/table/control conventions; the Claude
-Code engine just goes several levels deeper (raw JSON, formulas,
-layout grid, maps, containers) since it authors the workbook directly.
+Both encode the same chart/KPI/table/control conventions; the primary
+engine just goes several levels deeper (raw JSON, formulas, layout
+grid, maps, containers) since it authors the workbook directly rather
+than handing a plan to Sigma's Builder.
 
 ## `initial-call-brief`
 
@@ -77,6 +76,16 @@ primary engine) — same template, different lookup mechanism
 (Sigma MCP tools vs. `scripts/api/mcp-*.sh`). No call-type or
 call-number filtering: if you name the call, it's in scope, regardless
 of how Sigma tags it.
+
+## `sigma-use-cases`
+
+Lives in `skills/claude-code/.claude/skills/sigma-use-cases/` — ported
+from an existing Claude.ai skill (10 tailored use cases for a named
+company, rendered to a branded PPTX + supporting JSON). Its own
+`SKILL.md` has a "Claude Code adaptation note" at the top covering the
+`scripts/api/` substitutions. Offered after a workbook build, fed the
+account name/industry already captured by `initial-call-brief` — or
+usable standalone for a cold "what could \<company\> build?" ask.
 
 ## Confidentiality
 
