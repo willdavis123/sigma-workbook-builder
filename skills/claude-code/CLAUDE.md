@@ -26,6 +26,17 @@ workbook goal" then becomes the input to the normal `.env`/data-source
 questions and Recon → Plan flow below. Never skip straight from a raw
 transcript to spec authoring.
 
+**Steering intake + house style.** After brief approval (and on cold builds), run
+the short **build-preferences steering intake** (style/palette · visual focus ·
+layout) — all defaulting to the standard **house style**, so output is consistent
+unless the user steers. Every build produces the house-style template: header with
+a **logo slot**, a **"how to read this page" aid box**, the KPI/chart/detail body,
+and a final **"Talk Track & What's Next"** page (value story + the write-back /
+actions / AI capabilities to show live that the connector can't author). After the
+first build, tell the user what's easy to reconfigure. Definitions in
+`sigma-workbook-conventions/SKILL.md` → "Build-preferences steering intake",
+"House style — standard template", "Post-build: what you can configure".
+
 **After the workbook is built and verified**, offer (don't force) the
 complementary use-case slide: hand `.claude/skills/sigma-use-cases/` the
 account name + industry already captured in the approved brief — no need
@@ -50,7 +61,7 @@ Full 3-question text and workflow details live in
 
 **Project-local (`.claude/skills/`):**
 - `initial-call-brief` — turns a pasted or looked-up (Gong, via `scripts/api/mcp-search.sh` + `scripts/api/mcp-query.sh`) sales call into a structured brief, always paused for approval, before anything downstream runs. **This is the new front door** for "here's a call, build me a workbook" — start here whenever the request references an actual customer conversation rather than a cold ask.
-- `sigma-use-cases` — generates 10 tailored use cases for a named company as a branded PPTX + supporting JSON, querying the Use Case Agent data model. Ported from Claude.ai — see its own "Claude Code adaptation note" at the top of its `SKILL.md` for the `scripts/api/` tool substitutions. Runs after a workbook build, fed the account name/industry from `initial-call-brief`'s output, or standalone if someone just asks "what could \<company\> build?"
+- `sigma-use-cases` — generates 10 tailored use cases for a named company as a branded PPTX + supporting JSON, querying the Use Case Agent data model. Ported from Claude.ai — see its own "Claude Code adaptation note" at the top of its `SKILL.md` for the `scripts/api/` tool substitutions. Runs after a workbook build, fed the account name/industry from `initial-call-brief`'s output, or standalone if someone just asks "what could \<company\> build?" **Use the in-repo copy at `.claude/skills/sigma-use-cases/`, NOT the `anthropic-skills` plugin copy** — the plugin version targets Claude.ai-only tools (`/mnt/user-data/outputs`, `present_files`, `ask_user_input_v0`); only the in-repo port has the `scripts/api/` + Sigma MCP substitutions. The Use Case Agent data model lives in the `sigma-on-sigma` instance reached via the native Sigma MCP connector (a per-user account connector, not shipped in this repo) — queries there use the MCP `query`/`describe` tools, distinct from the `.env` REST path that drives workbook builds.
 - `sigma-workbook-conventions` — input resolution, naming, layout, control catalog, and POST-time gotchas when generating workbook specs. Carries **load-bearing rules** (passthrough mandatory, `[Metrics/<Name>]` resolution + DM-switch hard rule, formulas trace to recon, controlId/column collision) plus a chunked `reference/` split under `specification/` (per-element files: `schema`, `charts`, `kpis`, `tables`, `controls`, `layout`, `formulas`, `formatting`, `sources`, `sources-warehouse`, `text`, `containers`, `others`, `maps`) and `workflows/` (`plan`, `crud`, `validate`, `discover`, `from-image`), plus top-level rules (`conventions`, `naming`, `scope-and-edge-cases`, `history`). Pair with `scripts/sigma-resolve.py` (resolver) and `scripts/validate-spec.py` (pre-POST validator — 13 checks; full catalog in `reference/workflows/validate.md`).
 
 **Required reading before authoring (HARD GATE).** Before drafting a plan or writing any spec JSON in build mode, `Read` the chunk files mapped to the task type in `.claude/skills/sigma-workbook-conventions/SKILL.md` → "Required reading before authoring." Plans must include a `Chunks Read:` line listing the files consulted. Plans without that line are not approvable. This gate was added 2026-05-19 after a cold-start test session authored two workbooks without ever opening the chunk files — see `.claude/skills/sigma-workbook-conventions/reference/history.md` → "2026-05-19 — Cold-start test session."

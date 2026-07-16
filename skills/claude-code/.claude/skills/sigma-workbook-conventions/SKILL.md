@@ -106,6 +106,105 @@ directory level as canonical files so partial reads surface it, and
 file with a banner (`> **Local enrichment** — <date>, <purpose>`) so future
 readers know it's opt-in, not canonical.
 
+## Build-preferences steering intake
+
+After the Initial Call Brief is approved (or on any cold build request), run a
+short **steering intake** — an `AskUserQuestion` round — so the user shapes the
+build up front. Every option **defaults to the standard house style** (below), so
+a user can just accept defaults and get consistent output while knowing they can
+steer. Ask it alongside the data-source gate; keep it to ~3 questions:
+
+1. **Style / palette** — *Standard Sigma template (recommended)* · *Custom palette
+   (give brand hex colours)* · *Match an example workbook (share a URL)*.
+2. **Visual focus** — *Balanced (KPIs + trend/bar + a correlation + detail)* ·
+   *Exec / KPI-led* · *Analyst deep-dive (tables + correlations)* · *Let me specify*.
+3. **Layout** — *Standard house layout (header+logo, KPI row, charts, detail, aid
+   box, Talk Track page)* · *Variation (say what to add / drop / move)*.
+
+Restate the choices back in the plan (Plan §3/§5) with a one-line *why* for each,
+so steering is transparent and output stays consistent rather than ad-hoc. If the
+user gives nothing, proceed on the standard house style and say so. This is the
+flexibility-vs-consistency contract: standard by default, steerable on request.
+
+## Data sourcing — find a fit, then tailor
+
+Data is the load-bearing factor. Follow this gated sequence during recon,
+surfacing each gate to the user (don't silently pick):
+
+1. **Find the best real data model** from the call/prompt via `mcp-search.sh` +
+   `mcp-describe.sh`, and **profile it with real queries** (row counts, distinct
+   dimensions, value ranges) before planning. If a good fit exists, confirm it:
+   > *"This looks like it has the right data — happy to build off it?"*
+2. **If nothing fits (or the user says no), tailor a typical model.** Pick from a
+   shortlist of go-to models whose *shape* matches the use case and **reskin the
+   presentation to the customer's domain — do NOT write mock data**:
+   > *"I can tailor one of our typical data models to this — the data would be
+   > illustrative, but the visuals and language will match. Happy to proceed?"*
+   - Candidate typical models (confirm availability per org via `mcp-search.sh`):
+     a customer/usage feed, a transactions/sales model, an ops/projects model.
+   - **Tailor language, not data:** override element titles, column display
+     `name`s, and `text` blocks to the customer's vocabulary; pick visuals that
+     fit the story. This is a spec relabel — no warehouse writes, read-only.
+   - **Honesty guardrail (required):** add a `text` note on the page —
+     *"Illustrative data — figures are sample values, not <Customer>'s actuals."*
+3. **Then confirm the destination folder** as normal (Plan §1).
+
+> Generating *real* mock data into a warehouse (`CREATE TABLE`/`INSERT` into a
+> sandbox schema) is possible but **deferred** — it needs write creds + a writable
+> schema. Only reach for it when a scenario genuinely needs *correct* figures
+> rather than a tailored look; otherwise tailor a typical model (step 2).
+
+## House style — standard template
+
+The default look every build produces unless the steering intake says otherwise.
+Applying it consistently is what makes output feel like one product. Verified live
+on the Bicycle Therapeutics demo (2026-07-16).
+
+**Palette:** primary `#005DAA` (Sigma blue), secondary `#00A3A1` (teal), card
+border `#E3E8EF`, header accent border `#005DAA`, caveat amber `#8A6D00`, aid-box
+fill `#FBFDFF` / border `#DCE6FE`. `themeOverrides`: `pageWidth: large`,
+`space.unit: small`.
+
+**Standard page structure (page 1):**
+
+1. **Header container** (accent border) with, left→right / top→bottom:
+   - **Logo slot** (top-left, ~cols 1–5) — default a `text` placeholder
+     `**[ LOGO ]**` + a muted "swap for a hosted logo" note. It renders clean (no
+     broken image); swap for an `image` element (`{kind:"image", url:"…"}`) in the
+     same slot when a hosted URL is supplied. **Never** a third-party auto-logo
+     service — the Clearbit API is dead (2025-12).
+   - **Title** (styled `#005DAA`) + a one-line subtitle.
+   - **Context note** where relevant — the *"Illustrative data — not <Customer>'s
+     actuals"* caveat when tailoring (honesty guardrail).
+   - **Filter bar** (page-level controls).
+2. **"How to read this page" aid box** — a tinted `text` callout stating what the
+   filters / KPIs / each chart show and the story to tell. Compact; it exists so
+   someone can walk through (or record) the workbook unaided.
+3. **KPI row**, then the **chart grid**, then **detail tables** (coarse → fine).
+
+**Standard final page — "Talk Track & What's Next":** a narrative page for the
+recipient, two columns:
+- **The story** — the value beats, section by section.
+- **Shown live — not in this build** — capabilities the connector can't author
+  natively (write-back / input tables, API actions, AI/agents), framed as the
+  "what we do next" pitch. Include whenever those came up in the call.
+
+Logo slot, aid box, and Talk Track page are **on by default**; the steering intake
+can drop or restyle any of them.
+
+## Post-build: what you can configure
+
+After the first build + verify, tell the user — briefly — what's easy to change
+without re-planning, so they know the flexibility is there:
+
+> *"Built on the standard template. Easy to change from here, just say the word:
+> colours/palette · which charts · titles & labels (language) · filters · the logo
+> · keep or drop the aid box / Talk Track page. Or leave it as-is."*
+
+Frame these as low-effort tweaks (restyle, relabel, add/drop an element) distinct
+from a structural rebuild. This closes the loop the steering intake opened:
+standard by default, flexible on request.
+
 ## Discovery: use the bash helpers
 
 Read-only discovery against the Sigma workspace routes through the bash

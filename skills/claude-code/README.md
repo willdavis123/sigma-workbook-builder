@@ -26,6 +26,22 @@ On first open, Claude Code reads `.claude/settings.json` and **automatically ins
 
 You don't need to run `/plugin marketplace add` or `/plugin install` manually — those are only required if you want the upstream plugin available globally instead of project-scoped.
 
+## Prerequisites beyond `.env`
+
+- **Sigma MCP connector (optional but recommended).** Gong call lookup and the
+  `sigma-use-cases` slide can use the native Sigma MCP connector (pointed at
+  `sigma-on-sigma`). This is a **per-user setup in your own Claude account** —
+  it is *not* shipped in this repo, the same way the `Sigma_Docs` connector is
+  account-level. Without it, you can still paste transcripts directly and build
+  workbooks via the `.env` REST path. (Gong lookup also works via the shared
+  connection using `.env` creds — see the `initial-call-brief` skill.)
+- **First-run permission prompts are expected and safe.** On the first run
+  Claude will ask to run a batch of read-only helper commands (discovery
+  scripts, `pip install`, etc.). Approving them once — or choosing "always
+  allow" — is normal. Nothing is ever **deleted** without asking you explicitly
+  (DELETE always prompts, by design). The allowlist in `.claude/settings.json`
+  already covers the common cases.
+
 ## Starting a session
 
 Once Claude Code is open, describe what you want to build. Explicit trigger: **`start build mode`** — Claude opens with a 3-question gate (`.env` / data source / what to build + where in Sigma), warms the OAuth token, and runs `whoami` to confirm auth before recon. Then: Recon → Plan → Approval → Build → Verify.

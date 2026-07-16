@@ -34,6 +34,7 @@ import sys, os, json, shutil, argparse, re, copy
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.dml.color import RGBColor
+from pptx.util import Inches
 from pptx.oxml.ns import qn
 from lxml import etree
 
@@ -317,9 +318,36 @@ def build_slide_notes(slide, data: dict):
     notes_slide.notes_text_frame.text = notes_text
 
 
-def generate_from_template(json_path: str, output_path: str, template_path: str):
+def add_logo(slide, prs, logo_path: str):
+    """
+    Best-effort: drop a customer logo in the top-right corner of the slide.
+    `logo_path` must be a LOCAL image file (python-pptx can't embed a remote
+    URL — download it first, or leave the template's Sigma branding as-is).
+    Never raises; a bad path just logs and leaves the slide unchanged.
+    """
+    if not logo_path:
+        return
+    if not os.path.exists(logo_path):
+        print(f"  (warn) --logo file not found, skipping: {logo_path}", file=sys.stderr)
+        return
+    try:
+        width = Inches(1.4)
+        margin = Inches(0.25)
+        left = prs.slide_width - width - margin
+        top = margin
+        slide.shapes.add_picture(logo_path, left, top, width=width)
+        print(f"  added logo: {logo_path}")
+    except Exception as e:
+        print(f"  (warn) could not add logo ({e}); leaving default branding", file=sys.stderr)
+
+
+def generate_from_template(json_path: str, output_path: str, template_path: str,
+                           logo_path: str = None):
     with open(json_path) as f:
         data = json.load(f)
+
+    # Logo precedence: --logo arg > logo_path in JSON > none (keep Sigma branding).
+    logo_path = logo_path or data.get("logo_path")
 
     use_cases = data.get("use_cases", [])
     if len(use_cases) != 10:
@@ -366,6 +394,8 @@ def generate_from_template(json_path: str, output_path: str, template_path: str)
 
     build_slide_notes(slide, data)
 
+    add_logo(slide, prs, logo_path)
+
     # Keep ONLY the populated placeholder slide; remove all others
     # (example + Styles reference).
     prs_xml = prs.element
@@ -385,6 +415,9 @@ if __name__ == "__main__":
     parser.add_argument("output_path")
     parser.add_argument("--template", default=None,
                         help="Path to template PPTX (default: assets/Use_Case_Template.pptx beside this script)")
+    parser.add_argument("--logo", default=None,
+                        help="Optional LOCAL image file for a customer logo (top-right). "
+                             "Remote URLs are not embedded — download first. Omit to keep Sigma branding.")
     args = parser.parse_args()
 
     if args.template:
@@ -397,4 +430,4 @@ if __name__ == "__main__":
         print(f"Error: template not found at {template_path}", file=sys.stderr)
         sys.exit(1)
 
-    generate_from_template(args.json_path, args.output_path, template_path)
+    generate_from_template(args.json_path, args.output_path, template_path, args.logo)
