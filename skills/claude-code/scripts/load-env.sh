@@ -8,10 +8,14 @@
 
 set -euo pipefail
 
-ENV_FILE="${ENV_FILE:-.env}"
+# Resolve .env relative to THIS script's location (skills/claude-code/scripts/),
+# not the caller's current working directory — so this works no matter which
+# folder the terminal happens to be sitting in when it's invoked.
+_load_env_default="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env"
+ENV_FILE="${ENV_FILE:-$_load_env_default}"
 
 if [ ! -f "$ENV_FILE" ]; then
-  echo "load-env.sh: $ENV_FILE not found. Copy .env.example to .env and fill in values." >&2
+  echo "load-env.sh: $ENV_FILE not found. Copy .env.example to .env (in skills/claude-code/) and fill in values." >&2
   exit 1
 fi
 
