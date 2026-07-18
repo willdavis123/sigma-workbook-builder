@@ -481,6 +481,18 @@ like `rowCount: "[TopN]"` will be rejected; the field takes a number
 literal only. To vary a top-N cap interactively you currently need
 to duplicate the element per cap.
 
+> ⚠️ **A control cannot target a `pivot-table` (or other derived
+> element) directly** — a `filters[]` binding whose `source.elementId`
+> is a pivot POST-fails with `Dependency not found: '<pivot-id>'`
+> (verified 2026-07-17). Bind the control to the **shared base
+> `table`** the pivot sources from; the pivot inherits the filter (see
+> "One element, multiple controls" above). To scope a control to
+> *only* a pivot + its detail table without also filtering other
+> elements, give those two their **own dedicated base table** and
+> filter that. That's what the 2026-07-17 personal-finance build did
+> (`p2-txd` base feeds only the pivot + detail; the donut/combo use a
+> separate `p2-tx` base).
+
 ## Inherited-from-data-model controls
 
 When a `data-model` source defines controls (e.g., a parameter

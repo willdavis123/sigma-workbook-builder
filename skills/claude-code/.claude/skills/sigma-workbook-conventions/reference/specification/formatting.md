@@ -41,6 +41,22 @@ Format-string cheat sheet:
 - `.<n>~e` — scientific with trimmed trailing zeros
 - `~S` — SI prefix (K/M/B abbreviation) with trimmed trailing zeros
 
+### Non-`$` currency symbols (£, €, ¥) — use `currencySymbol`
+
+> ⚠️ A currency symbol in the `formatString` itself is **rejected** —
+> `formatString: "£,.0f"` POST-fails with `Invalid number format
+> string: '£,.0f'` (verified 2026-07-17). d3 only knows `$` as the
+> currency placeholder. For **£ / € / ¥**, keep `$` in the
+> `formatString` and override the displayed glyph with a
+> `currencySymbol` sibling:
+>
+> ```json
+> { "kind": "number", "formatString": "$,.0f", "currencySymbol": "£" }
+> ```
+>
+> `validate-spec.py`'s `currency-format-symbol` check flags a non-ASCII
+> symbol in `formatString` pre-POST.
+
 ### Currency-specific richer shape
 
 For currency, Sigma's `format` object can carry additional siblings

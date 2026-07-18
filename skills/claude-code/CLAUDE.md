@@ -7,6 +7,27 @@
 
 This workspace builds Sigma Computing dashboards/workbooks via Claude Code using Sigma's official agent skills plus project-local workbook-pattern skills.
 
+> ## ⚠️ Build path — the `.env` REST engine, NOT the Sigma MCP connector
+>
+> Real workbook builds go through the **`.env` REST engine**
+> (`scripts/api/*.sh` for recon, `publish-workbook.sh post|put` to
+> publish). The native **Sigma MCP connector** (`begin_session`,
+> `build_workbook`, its `search`/`describe`/`query`) is a **different
+> Sigma org** — typically `sigma-on-sigma` staging — and will return
+> "No matching record" for a data model that lives in the `.env` org
+> (e.g. `papercrane` prod). Use the MCP connector ONLY for the
+> `sigma-use-cases` Use-Case-Agent queries and Sigma docs lookups —
+> never to search for or build against a customer/`.env`-org data model.
+>
+> **Recon guard:** before searching for a data model, confirm which org
+> `.env` reaches — `scripts/api/whoami.sh` prints it. If the user gives
+> a full workbook/data-model URL, resolve it with
+> `scripts/api/find-file-by-urlid.sh <urlId>` (works across the `.env`
+> org) rather than the MCP `search`. Skipping this cost a full detour on
+> the 2026-07-17 personal-finance build — the data model was in
+> `papercrane` prod while the MCP connector was on `sigma-on-sigma`
+> staging.
+
 ## Session kickoff
 
 The skill opens with a 3-question `AskUserQuestion` gate on the user's first

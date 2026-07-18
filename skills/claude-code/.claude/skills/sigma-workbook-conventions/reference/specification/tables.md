@@ -434,11 +434,20 @@ See `reference/conventions.md` → "Two-tier sourcing."
 The `input-table` element is an editable table — users type values
 directly into cells, backed by a provisioned warehouse table.
 
-**Status (2026-07-02):** documented by upstream eng skill; no
-harvested exemplar in this skill's corpus yet. Practical value is
-limited until Sigma exposes actions (buttons that write cell values
-back to the warehouse) via the spec. Keep the docs minimal until
-that lands.
+> ⚠️ **`input-table` is REJECTED at POST** — `POST /v2/workbooks/spec`
+> returns `Invalid kind: "input-table"` (verified 2026-07-17). Do NOT
+> author one. When a build calls for an editable/write-back table,
+> drop a **`text` placeholder** in that layout slot describing the
+> intended columns + action, and note that the live input table is
+> added directly in Sigma after the build. `validate-spec.py`'s
+> `unsupported-element-kind` check catches this pre-POST.
+
+**Status (2026-07-17):** documented by upstream eng skill but not
+accepted by the public workbook-spec endpoint (see warning above); no
+harvested exemplar in this skill's corpus. Practical value is limited
+until Sigma exposes both the element kind AND actions (buttons that
+write cell values back to the warehouse) via the spec. Keep the docs
+minimal until that lands.
 
 ## Shape
 

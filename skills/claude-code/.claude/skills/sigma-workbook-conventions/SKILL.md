@@ -293,6 +293,9 @@ session and cite chunk + section in the plan.
 | Every build (always) | `reference/conventions.md` + `reference/workflows/plan.md` + `reference/specification/schema.md` + `reference/specification/layout.md` |
 | Viz-heavy build (>2 chart kinds, KPI rows, pivots) | + each `reference/specification/<kind>.md` for the kinds in the plan (`charts.md`, `kpis.md`, `tables.md`, etc.) |
 | Formula-heavy build (custom calcs, metrics, Lookup, Rollup) | + `reference/specification/formulas.md` |
+| **Data-model-sourced build (any `kind: data-model` element)** | + `reference/specification/sources.md` |
+| **Any formatted numbers / currency / % / dates** | + `reference/specification/formatting.md` (esp. non-`$` currency → `currencySymbol`) |
+| **House-style build (logo slot, aid boxes, Talk Track — i.e. almost every build)** | + `reference/specification/text.md` |
 | Conditional-formatting build (table/pivot cell coloring) | + `reference/specification/tables.md` |
 | Container-styling-heavy build | + `reference/specification/containers.md` |
 | Image / divider / embed / dynamic-text build | + `reference/specification/others.md` + `reference/specification/text.md` |
