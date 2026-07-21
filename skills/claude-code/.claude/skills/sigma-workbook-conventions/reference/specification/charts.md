@@ -509,6 +509,17 @@ Two years in the data → two lines. Three years → three lines. Reader
 sees actual year labels in the legend (`2025`, `2026`) rather than
 abstract tags.
 
+> ⚠️ **`DatePart("year", …)` returns a NUMBER — wrap it in `Text()` for
+> a color/axis dimension.** An unformatted integer year renders with a
+> thousands separator, so `2026` shows as **`2,026`** in the legend/axis
+> — looks broken on screen. Fix: `Text(DatePart("year", [Date]))` (clean
+> `"2026"` string, and 4-digit years still sort chronologically as
+> strings). Applies to any integer used as a categorical dimension
+> (year, month-number is fine — it never hits 4 digits). Verified
+> 2026-07-17 on the personal-finance monthly-trend legend. A raw
+> `formatString: "0"` also works but `Text()` is the bulletproof form
+> for a `color.by: "category"` channel.
+
 **Why prefer this:** the color legend shows meaningful values the
 reader recognizes. A viewer looking at a "2025 vs 2026" line chart
 knows exactly what they're comparing.
