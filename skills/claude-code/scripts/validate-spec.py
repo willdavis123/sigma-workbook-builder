@@ -40,7 +40,16 @@ CHECKS = [
     "summary-calc-collision",
     "description-object-on-kpi-and-table",
     "pivot-missing-rows-and-columns",
+    "unsupported-element-kind",
+    "channel-exclusivity",
+    "currency-format-symbol",
 ]
+
+
+# Element kinds the public workbook-spec POST endpoint rejects outright.
+# input-table → `Invalid kind: "input-table"` (verified 2026-07-17). Use a
+# text placeholder and add the live input table in the Sigma UI.
+UNSUPPORTED_ELEMENT_KINDS = {"input-table"}
 
 
 # Chart-kind elements that should carry substantive passthrough columns
@@ -668,6 +677,161 @@ def issues_pivot_missing_rows_and_columns(spec: dict) -> list[tuple[str, str]]:
     return issues
 
 
+def issues_unsupported_element_kind(spec: dict) -> list[tuple[str, str]]:
+    """Fail-level: reject element kinds the POST endpoint doesn't accept.
+
+    Currently just `input-table` — `POST /v2/workbooks/spec` returns
+    `Invalid kind: "input-table"` (verified 2026-07-17, personal-finance
+    build). Author a `text` placeholder in the slot instead and add the
+    live input table + write-back action directly in Sigma.
+    """
+    issues = []
+    for pi, el in _all_elements(spec):
+        kind = el.get("kind")
+        if kind in UNSUPPORTED_ELEMENT_KINDS:
+            el_label = el.get("id") or "(unnamed)"
+            issues.append((
+                "fail",
+                f"pages[{pi}].elements ({el_label}): kind `{kind}` is rejected "
+                f"at POST (`Invalid kind: \"{kind}\"`). Replace with a `text` "
+                f"placeholder describing the intended table/action; add the "
+                f"live element in the Sigma UI after the build. See "
+                f"reference/specification/tables.md → 'Input tables.'"
+            ))
+    return issues
+
+
+def _channel_column_refs(el: dict) -> list[tuple[str, str]]:
+    """Return (channel, columnId) pairs for every binding channel on a viz.
+
+    Covers cartesian charts, pie/donut, and all three map kinds. `label`
+    and `tooltip` are arrays; the rest are single `{id}` / `{columnId}` /
+    `{column}` objects (or, for yAxis, a list). Sort keys and non-binding
+    fields are intentionally ignored — only true channels count toward
+    exclusivity.
+    """
+    refs: list[tuple[str, str]] = []
+
+    def add(channel: str, val) -> None:
+        if isinstance(val, str):
+            refs.append((channel, val))
+        elif isinstance(val, dict):
+            cid = val.get("id") or val.get("columnId") or val.get("column")
+            if cid:
+                refs.append((channel, cid))
+
+    # xAxis — single object with columnId/id
+    xa = el.get("xAxis")
+    if isinstance(xa, dict):
+        cid = xa.get("columnId") or xa.get("id")
+        if cid:
+            refs.append(("xAxis", cid))
+
+    # yAxis — modern {columnIds:[...]} or legacy [{id}]
+    ya = el.get("yAxis")
+    ya_items = []
+    if isinstance(ya, dict):
+        ya_items = ya.get("columnIds", []) or []
+    elif isinstance(ya, list):
+        ya_items = ya
+    for item in ya_items:
+        if isinstance(item, str):
+            refs.append(("yAxis", item))
+        elif isinstance(item, dict):
+            cid = item.get("columnId") or item.get("id")
+            if cid:
+                refs.append(("yAxis", cid))
+
+    add("color", el.get("color"))
+    add("size", el.get("size"))
+    add("value", el.get("value"))
+    add("holeValue", el.get("holeValue"))
+    add("region", el.get("region"))
+    add("geography", el.get("geography"))
+    add("latitude", el.get("latitude"))
+    add("longitude", el.get("longitude"))
+
+    for channel in ("label", "tooltip"):
+        arr = el.get(channel)
+        if isinstance(arr, list):
+            for item in arr:
+                if isinstance(item, dict):
+                    cid = item.get("id") or item.get("columnId")
+                    if cid:
+                        refs.append((channel, cid))
+    return refs
+
+
+# Element kinds that have binding channels subject to the one-column-per-
+# channel rule. Tables/pivots/KPIs excluded (no multi-channel binding).
+_CHANNEL_KINDS = {
+    "bar-chart", "line-chart", "area-chart", "combo-chart", "scatter-chart",
+    "pie-chart", "donut-chart", "region-map", "point-map", "geography-map",
+}
+
+
+def issues_channel_exclusivity(spec: dict) -> list[tuple[str, str]]:
+    """Fail-level: a column id used on more than one binding channel.
+
+    Sigma rejects at POST with `Column '<id>' is referenced from both 'X'
+    and 'Y'; a column can only be on one channel at a time`. The fix is to
+    duplicate the column (distinct id, same formula) and wire one per
+    channel. Verified 2026-07-17: a region-map put `mp-spend` on both
+    `color` and `label`. See reference/conventions.md → 'Channel exclusivity.'
+    """
+    issues = []
+    for pi, el in _all_elements(spec):
+        if el.get("kind") not in _CHANNEL_KINDS:
+            continue
+        channels_by_col: dict[str, set[str]] = {}
+        for channel, cid in _channel_column_refs(el):
+            channels_by_col.setdefault(cid, set()).add(channel)
+        for cid, channels in channels_by_col.items():
+            if len(channels) > 1:
+                el_label = el.get("id") or "(unnamed)"
+                chans = ", ".join(f"'{c}'" for c in sorted(channels))
+                issues.append((
+                    "fail",
+                    f"pages[{pi}].elements ({el_label}, {el.get('kind')}): "
+                    f"column `{cid}` is bound to multiple channels ({chans}). "
+                    f"POST rejects this — duplicate the column (distinct id, "
+                    f"same formula) and put one copy on each channel."
+                ))
+    return issues
+
+
+def issues_currency_format_symbol(spec: dict) -> list[tuple[str, str]]:
+    """Fail-level: a non-ASCII currency glyph inside a `formatString`.
+
+    d3 only understands `$` as the currency placeholder; a literal `£`,
+    `€`, `¥`, etc. POST-fails with `Invalid number format string`. Keep `$`
+    in the formatString and set a `currencySymbol` sibling. Verified
+    2026-07-17. See reference/specification/formatting.md.
+    """
+    issues = []
+    for pi, el in _all_elements(spec):
+        for ci, col in enumerate(el.get("columns", []) or []):
+            fmt = col.get("format")
+            if not isinstance(fmt, dict):
+                continue
+            fs = fmt.get("formatString")
+            if not isinstance(fs, str):
+                continue
+            bad = [ch for ch in fs if ord(ch) > 127]
+            if bad:
+                el_label = el.get("id") or "(unnamed)"
+                issues.append((
+                    "fail",
+                    f"pages[{pi}].elements ({el_label}).columns[{ci}] "
+                    f"({col.get('id')}): formatString {fs!r} contains a "
+                    f"non-ASCII symbol ({''.join(sorted(set(bad)))}). d3 only "
+                    f"knows `$` as the currency placeholder — use "
+                    f'`formatString: "$,.0f"` + a `currencySymbol` sibling '
+                    f'(e.g. `"currencySymbol": "£"`).'
+                ))
+    return issues
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         sys.stderr.write("usage: validate-spec.py <spec.json>\n")
@@ -692,6 +856,9 @@ def main() -> None:
         ("summary-calc-collision",     lambda: issues_summary_calc_collision(spec)),
         ("description-object-on-kpi-and-table", lambda: issues_description_object_on_kpi_and_table(spec)),
         ("pivot-missing-rows-and-columns", lambda: issues_pivot_missing_rows_and_columns(spec)),
+        ("unsupported-element-kind",   lambda: issues_unsupported_element_kind(spec)),
+        ("channel-exclusivity",        lambda: issues_channel_exclusivity(spec)),
+        ("currency-format-symbol",     lambda: issues_currency_format_symbol(spec)),
     ]:
         for level, msg in fn():
             all_issues.append((level, tag, msg))

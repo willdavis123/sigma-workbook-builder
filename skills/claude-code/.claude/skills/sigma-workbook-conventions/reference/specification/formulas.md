@@ -468,6 +468,24 @@ Rules of thumb from the verified build:
   the fact table so charts sourced from it don't fail
   `validate-spec.py`'s `passthrough-coverage` check.
 
+## Composite-key Lookup (month + dimension)
+
+`Lookup` matches on a **single** key. To match on TWO keys — e.g. *"actual spend
+in this month for this category"* — build a composite key string on both sides
+and look up on that:
+
+- On the aggregated source (a table grouped by month + category):
+  `Month Cat Key = DateFormat([Date], "%Y-%m") & "|" & [Category]`
+- On the consumer (one row per month + category, e.g. a monthly budget table):
+  the same `Month Cat Key = DateFormat([Budget Month], "%Y-%m") & "|" & [Category]`
+- Then: `Lookup([Spend by Month & Cat/Monthly Actual], [Month Cat Key], [Spend by Month & Cat/Month Cat Key])`
+
+Rows whose (month, category) has no source match return **null** — the correct
+behaviour for e.g. future budget months that have no actuals yet. A **category-
+only** lookup instead repeats the whole-category total on every month's row
+(including future ones) — a common bug. Verified 2026-07-22 on the personal-finance
+monthly budget-vs-actual (`reference/local-will-personal-finance.md`).
+
 ## Per-row windowed aggregations — `Rollup`
 
 `Rollup(<aggregate>, <partition-col>, <order-col>)` computes a
@@ -480,19 +498,45 @@ Rollup(Min([Date]), [Cust Key], [Date])
 Returns the earliest `Date` per customer (the first-purchase date).
 Canonical example: `examples/data-model-sourced-cohort-pivot.json`.
 
-### Two Rollup traps
+### Rollup arity + the grand-total `(agg, 1, 1)` form
 
-**Third argument must be a column reference, not a literal.**
+**Rollup takes exactly 3 arguments on this org.** A 2-arg call
+(`Rollup(Max([Date]), [Key])`) errors with `Rollup expected 3
+arguments, got 2`. A 3-arg call whose 3rd arg is an unsuitable column
+can error with `Argument 3 invalid for function 'Rollup'`.
+
+**Grand-total broadcast — `Rollup(<agg>, 1, 1)`.** To broadcast a
+table-wide aggregate to *every row* (no partition, no ordering), pass
+`1, 1` for args 2 and 3:
 
 ```
-Wrong: Rollup(Sum([Sales]), [Store Key], 1)     // literal → renders null
-Right: Rollup(Sum([Sales]), [Store Key], [Row Month])
+Rollup(Max([Balance Date]), 1, 1)   // grand-max date on every row
+Rollup(Sum([Sales]), 1, 1)          // grand-total sales on every row
 ```
 
-The order argument is used when the aggregation is order-dependent
-(`RunningSum`, `Lead`, `Lag`). Even for order-independent aggregations
-(`Sum`, `Avg`), pass any partition-relevant column — a literal is
-rejected semantically and the value comes back null.
+Verified 2026-07-17 (personal-finance net-worth build) — this is the
+right tool for "latest snapshot" / "share of total" patterns.
+
+**Partitioned window — `Rollup(<agg>, [partition], [order])`.** When
+you DO want per-partition values, args 2 and 3 are the partition key
+and an order column:
+
+```
+Rollup(Min([Date]), [Cust Key], [Date])   // first-purchase date per customer
+```
+
+For order-independent aggregations (`Sum`, `Avg`, `Max`, `Min`) the
+order arg just needs to be a valid column on the partition — but the
+`1, 1` grand-total form above is simpler when you don't need partitions.
+
+> ⚠️ **`Max()` / `Min()` / `Sum()` in a plain (non-grouped) calculated
+> column are NOT windowed to a grand total** — they evaluate in a
+> per-row context and return the row's own value (so
+> `If([Date] = Max([Date]), 1, 0)` marks **every** row as the max).
+> To get a table-wide aggregate broadcast to each row, use
+> `Rollup(<agg>, 1, 1)`, not a bare aggregate. This cost ~4 PUT cycles
+> on the 2026-07-17 net-worth build before the `Rollup(..., 1, 1)`
+> fix — the £1.7M net-worth bug was exactly this.
 
 **Do NOT combine `Rollup()` with `groupings` on the same table.**
 
