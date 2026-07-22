@@ -1,0 +1,2056 @@
+{
+  "name": "Will \u2014 Personal Finance Overview",
+  "folderId": "<REPLACE_WITH_DESTINATION_FOLDER_ID>",
+  "description": "Personal finance dashboard \u2014 spending, budget discipline, net worth. Built from the Will Spending Model.",
+  "schemaVersion": 1,
+  "pages": [
+    {
+      "id": "page-overview",
+      "name": "Overview",
+      "elements": [
+        {
+          "id": "DtK8wv7nSv",
+          "kind": "image",
+          "url": "https://ca.slack-edge.com/E07M25LCK1V-U08UD7J2KFG-99ca9f94db4f-512"
+        },
+        {
+          "id": "p1-title",
+          "kind": "text",
+          "body": "# <span style=\"color: #005DAA\">**Will'sPersonal Finance Overview**</span>\n\nSpending, budget discipline & net worth \u2014 last two years",
+          "verticalAlign": "middle"
+        },
+        {
+          "kind": "control",
+          "controlId": "DateRange",
+          "id": "p1-ctrl-date",
+          "name": "Date range",
+          "filters": [
+            {
+              "source": {
+                "kind": "table",
+                "elementId": "p1-tx"
+              },
+              "columnId": "tx-transaction-date"
+            }
+          ],
+          "controlType": "date-range",
+          "mode": "last",
+          "value": 24,
+          "unit": "month",
+          "includeToday": true,
+          "includeNulls": "when-no-value-is-selected"
+        },
+        {
+          "id": "p1-aid",
+          "kind": "text",
+          "body": "### How to read this page\n\n**KPIs** show this month's spend vs last, your savings rate, current net worth, active subscription cost and travel spend so far this year. The **left chart** overlays each year's monthly spend so you can compare seasons (e.g. Dec 2024 vs Dec 2025). The **right chart** tracks net worth from account balances. Use the **date range** to rescope.",
+          "verticalAlign": "start"
+        },
+        {
+          "id": "p1-kpi-thismo",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-thismo-val",
+              "formula": "Sum(If(DateTrunc(\"month\", [Transactions/Transaction Date]) = DateTrunc(\"month\", Today()), [Transactions/Spend Amount], 0))",
+              "name": "Spend This Month",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "p1-kpi-thismo-mo",
+              "formula": "DateTrunc(\"month\", [Transactions/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-thismo-val"
+          },
+          "name": {
+            "text": "Spend This Month",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-kpi-lastmo",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-lastmo-val",
+              "formula": "Sum(If(DateTrunc(\"month\", [Transactions/Transaction Date]) = DateAdd(\"month\", -1, DateTrunc(\"month\", Today())), [Transactions/Spend Amount], 0))",
+              "name": "Spend Last Month",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "p1-kpi-lastmo-mo",
+              "formula": "DateTrunc(\"month\", [Transactions/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-lastmo-val"
+          },
+          "name": {
+            "text": "Spend Last Month",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-kpi-savings",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-savings-val",
+              "formula": "If(Sum([Transactions/Income Amount]) = 0, Null, (Sum([Transactions/Income Amount]) - Sum([Transactions/Spend Amount])) / Sum([Transactions/Income Amount]))",
+              "name": "Savings Rate",
+              "format": {
+                "kind": "number",
+                "formatString": ".0%"
+              }
+            },
+            {
+              "id": "p1-kpi-savings-mo",
+              "formula": "DateTrunc(\"month\", [Transactions/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-savings-val"
+          },
+          "name": {
+            "text": "Savings Rate",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-kpi-networth",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-bal",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-networth-val",
+              "formula": "Sum(If([Account Balances/Balance Date] = [Account Balances/Latest Balance Date], [Account Balances/Balance], 0))",
+              "name": "Net Worth",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "p1-kpi-networth-mo",
+              "formula": "[Account Balances/Balance Month]",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-networth-val"
+          },
+          "name": {
+            "text": "Net Worth",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-kpi-subs",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-sub",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-subs-val",
+              "formula": "Sum(If([Subscriptions/Status] = \"Active\", [Subscriptions/Monthly Cost], 0))",
+              "name": "Active Subs (\u00a3/mo)",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-subs-val"
+          },
+          "name": {
+            "text": "Active Subs (\u00a3/mo)",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-kpi-travel",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p1-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p1-kpi-travel-val",
+              "formula": "Sum(If([Transactions/Category] = \"Travel\" and DatePart(\"year\", [Transactions/Transaction Date]) = DatePart(\"year\", Today()), [Transactions/Amount], 0))",
+              "name": "YTD Travel Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "p1-kpi-travel-mo",
+              "formula": "DateTrunc(\"month\", [Transactions/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p1-kpi-travel-val"
+          },
+          "name": {
+            "text": "YTD Travel Spend",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p1-trend",
+          "kind": "line-chart",
+          "source": {
+            "elementId": "p1-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "tr-year",
+              "formula": "Text(DatePart(\"year\", [Transactions/Transaction Date]))",
+              "name": "Year"
+            },
+            {
+              "id": "tr-monthnum",
+              "formula": "DatePart(\"month\", [Transactions/Transaction Date])",
+              "name": "Month Number"
+            },
+            {
+              "id": "tr-spend",
+              "formula": "Sum([Transactions/Spend Amount])",
+              "name": "Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tr-transaction-id",
+              "formula": "[Transactions/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "tr-transaction-date",
+              "formula": "[Transactions/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "tr-account-name",
+              "formula": "[Transactions/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "tr-category",
+              "formula": "[Transactions/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "tr-subcategory",
+              "formula": "[Transactions/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "tr-merchant",
+              "formula": "[Transactions/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "tr-merchant-city",
+              "formula": "[Transactions/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "tr-merchant-country",
+              "formula": "[Transactions/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "tr-channel",
+              "formula": "[Transactions/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "tr-payment-method",
+              "formula": "[Transactions/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "tr-is-recurring",
+              "formula": "[Transactions/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "tr-amount",
+              "formula": "[Transactions/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tr-transaction-type",
+              "formula": "[Transactions/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "tr-spendamt",
+              "formula": "[Transactions/Spend Amount]",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "yAxis": {
+            "columnIds": [
+              "tr-spend"
+            ]
+          },
+          "xAxis": {
+            "columnId": "tr-monthnum",
+            "sort": {
+              "by": "tr-monthnum",
+              "direction": "ascending"
+            }
+          },
+          "color": {
+            "by": "category",
+            "column": "tr-year",
+            "scheme": [
+              "#8FA6B2",
+              "#00A3A1",
+              "#005DAA"
+            ]
+          },
+          "name": {
+            "text": "Monthly Spend by Year",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p1-networth-trend",
+          "kind": "line-chart",
+          "source": {
+            "elementId": "p1-bal",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "nw-date",
+              "formula": "[Account Balances/Balance Date]",
+              "name": "Balance Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            },
+            {
+              "id": "nw-total",
+              "formula": "Sum([Account Balances/Balance])",
+              "name": "Net Worth",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "nw-account",
+              "formula": "[Account Balances/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "nw-bal",
+              "formula": "[Account Balances/Balance]",
+              "name": "Balance",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "nw-month",
+              "formula": "[Account Balances/Balance Month]",
+              "name": "Balance Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "yAxis": {
+            "columnIds": [
+              "nw-total"
+            ]
+          },
+          "xAxis": {
+            "columnId": "nw-date",
+            "sort": {
+              "by": "nw-date",
+              "direction": "ascending"
+            }
+          },
+          "color": {
+            "by": "single",
+            "value": "#00a3a1"
+          },
+          "name": {
+            "text": "Net Worth Over Time",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p1-tx",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "hYt7KPP96e",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "tx-transaction-id",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "tx-transaction-date",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "tx-account-name",
+              "formula": "[WD_PF_TRANSACTIONS/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "tx-category",
+              "formula": "[WD_PF_TRANSACTIONS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "tx-subcategory",
+              "formula": "[WD_PF_TRANSACTIONS/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "tx-merchant",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "tx-merchant-city",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "tx-merchant-country",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "tx-channel",
+              "formula": "[WD_PF_TRANSACTIONS/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "tx-payment-method",
+              "formula": "[WD_PF_TRANSACTIONS/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "tx-is-recurring",
+              "formula": "[WD_PF_TRANSACTIONS/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "tx-amount",
+              "formula": "[WD_PF_TRANSACTIONS/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-transaction-type",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "tx-spend",
+              "formula": "If(In([Category], \"Income\", \"Transfer\"), 0, [Amount])",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-income",
+              "formula": "If([Category] = \"Income\", [Amount], 0)",
+              "name": "Income Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Transactions",
+          "order": [
+            "tx-transaction-id",
+            "tx-transaction-date",
+            "tx-account-name",
+            "tx-category",
+            "tx-subcategory",
+            "tx-merchant",
+            "tx-merchant-city",
+            "tx-merchant-country",
+            "tx-channel",
+            "tx-payment-method",
+            "tx-is-recurring",
+            "tx-amount",
+            "tx-transaction-type",
+            "tx-spend",
+            "tx-income"
+          ]
+        },
+        {
+          "id": "p1-bal",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "ArMsxOTSyg",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "bal-date",
+              "formula": "[WD_PF_ACCOUNT_BALANCES/Balance Date]",
+              "name": "Balance Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "bal-account",
+              "formula": "[WD_PF_ACCOUNT_BALANCES/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "bal-amt",
+              "formula": "[WD_PF_ACCOUNT_BALANCES/Balance]",
+              "name": "Balance",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "bal-month",
+              "formula": "DateTrunc(\"month\", [Balance Date])",
+              "name": "Balance Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            },
+            {
+              "id": "bal-latestdate",
+              "formula": "Rollup(Max([Balance Date]), 1, 1)",
+              "name": "Latest Balance Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            }
+          ],
+          "name": "Account Balances",
+          "order": [
+            "bal-date",
+            "bal-account",
+            "bal-amt",
+            "bal-month",
+            "bal-latestdate"
+          ]
+        },
+        {
+          "id": "p1-sub",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "8Da9-04Kfb",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "sub-name",
+              "formula": "[WD_PF_SUBSCRIPTIONS/Subscription Name]",
+              "name": "Subscription Name"
+            },
+            {
+              "id": "sub-cat",
+              "formula": "[WD_PF_SUBSCRIPTIONS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "sub-cost",
+              "formula": "[WD_PF_SUBSCRIPTIONS/Monthly Cost]",
+              "name": "Monthly Cost",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "sub-status",
+              "formula": "[WD_PF_SUBSCRIPTIONS/Status]",
+              "name": "Status"
+            }
+          ],
+          "name": "Subscriptions",
+          "order": [
+            "sub-name",
+            "sub-cat",
+            "sub-cost",
+            "sub-status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-category",
+      "name": "Category Deep Dive",
+      "elements": [
+        {
+          "id": "p2-title",
+          "kind": "text",
+          "body": "# <span style=\"color: #005DAA\">**Category Deep Dive**</span>\n\nWhere the money goes \u2014 actual vs budget, by category & subcategory",
+          "verticalAlign": "middle"
+        },
+        {
+          "kind": "control",
+          "controlId": "CategorySelect",
+          "id": "p2-ctrl-cat",
+          "name": "Category",
+          "filters": [
+            {
+              "source": {
+                "kind": "table",
+                "elementId": "p2-txd"
+              },
+              "columnId": "tx-category"
+            }
+          ],
+          "controlType": "list",
+          "mode": "include",
+          "selectionMode": "multiple",
+          "values": [],
+          "source": {
+            "kind": "source",
+            "source": {
+              "kind": "table",
+              "elementId": "p2-txd"
+            },
+            "columnId": "tx-category"
+          }
+        },
+        {
+          "id": "p2-aid",
+          "kind": "text",
+          "body": "### <span style=\"color: #00A3A1\">\u2501\u2501</span> How to read this page\n\nThe **combo chart** shows actual spend (bars) against budget (line) per category over the range. The **pivot** breaks category \u2192 subcategory down by month; the **detail table** below lists the underlying transactions \u2014 both driven by the **Category** control. The **donut** shows spend split by payment method (income & transfers excluded). The **input table** is where you'll add a one-off expense or tweak a budget once write-back is wired up.",
+          "verticalAlign": "start"
+        },
+        {
+          "id": "p2-combo",
+          "kind": "combo-chart",
+          "source": {
+            "elementId": "p2-budget",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "cmb-cat",
+              "formula": "[Budget Detail/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "cmb-actual",
+              "formula": "Max([Budget Detail/Actual Spend])",
+              "name": "Actual",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "cmb-budget",
+              "formula": "Sum(If([Budget Detail/Budget Month] <= DateTrunc(\"month\", Today()), [Budget Detail/Budget Amount], 0))",
+              "name": "Budget",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "yAxis": {
+            "columnIds": [
+              "cmb-actual",
+              {
+                "columnId": "cmb-budget",
+                "type": "line"
+              }
+            ]
+          },
+          "xAxis": {
+            "columnId": "cmb-cat",
+            "sort": {
+              "by": "cmb-actual",
+              "direction": "descending"
+            }
+          },
+          "name": {
+            "text": "Actual vs Budget by Category",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p2-donut",
+          "kind": "donut-chart",
+          "source": {
+            "elementId": "p2-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "dn-payment-method",
+              "formula": "[Transactions/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "dn-count",
+              "formula": "CountDistinct([Transactions/Transaction Id])",
+              "name": "Transactions"
+            },
+            {
+              "id": "dn-spend",
+              "formula": "Sum([Transactions/Spend Amount])",
+              "name": "Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "dn-transaction-id",
+              "formula": "[Transactions/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "dn-transaction-date",
+              "formula": "[Transactions/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "dn-account-name",
+              "formula": "[Transactions/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "dn-category",
+              "formula": "[Transactions/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "dn-subcategory",
+              "formula": "[Transactions/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "dn-merchant",
+              "formula": "[Transactions/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "dn-merchant-city",
+              "formula": "[Transactions/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "dn-merchant-country",
+              "formula": "[Transactions/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "dn-channel",
+              "formula": "[Transactions/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "dn-is-recurring",
+              "formula": "[Transactions/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "dn-amount",
+              "formula": "[Transactions/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "dn-transaction-type",
+              "formula": "[Transactions/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "dn-spendamt",
+              "formula": "[Transactions/Spend Amount]",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "color": {
+            "id": "dn-payment-method",
+            "sort": {
+              "by": "dn-spend",
+              "direction": "descending"
+            }
+          },
+          "value": {
+            "id": "dn-spend"
+          },
+          "holeValue": {
+            "id": "dn-count"
+          },
+          "name": {
+            "text": "Spend by Payment Method",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p2-pivot",
+          "kind": "pivot-table",
+          "source": {
+            "elementId": "p2-txd",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "piv-cat",
+              "formula": "[Transactions Detail/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "piv-subcat",
+              "formula": "[Transactions Detail/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "piv-month",
+              "formula": "DateTrunc(\"month\", [Transactions Detail/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            },
+            {
+              "id": "wH-OOD_7Lr",
+              "formula": "Sum(If(DateTrunc(\"month\", [Transactions Detail/Transaction Date]) <= DateTrunc(\"month\", Today()), [Transactions Detail/Amount], 0))"
+            },
+            {
+              "id": "dHWc7pR-vy",
+              "formula": "[Transactions Detail/Amount]"
+            },
+            {
+              "id": "piv-spend",
+              "formula": "Sum([Transactions Detail/Spend Amount])",
+              "name": "Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "values": [
+            "wH-OOD_7Lr"
+          ],
+          "rowsBy": [
+            {
+              "id": "piv-cat"
+            },
+            {
+              "id": "piv-subcat"
+            }
+          ],
+          "columnsBy": [
+            {
+              "id": "piv-month",
+              "sort": {
+                "by": "piv-month",
+                "direction": "ascending"
+              }
+            }
+          ],
+          "name": {
+            "text": "Category \u00d7 Subcategory by Month",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p2-detail",
+          "kind": "table",
+          "source": {
+            "elementId": "p2-txd",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "det-date",
+              "formula": "[Transactions Detail/Transaction Date]",
+              "name": "Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "det-category",
+              "formula": "[Transactions Detail/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "det-subcategory",
+              "formula": "[Transactions Detail/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "det-merchant",
+              "formula": "[Transactions Detail/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "det-country",
+              "formula": "[Transactions Detail/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "det-payment",
+              "formula": "[Transactions Detail/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "det-type",
+              "formula": "[Transactions Detail/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "det-amount",
+              "formula": "[Transactions Detail/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": {
+            "text": "Transaction Detail",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "order": [
+            "det-date",
+            "det-category",
+            "det-subcategory",
+            "det-merchant",
+            "det-country",
+            "det-payment",
+            "det-type",
+            "det-amount"
+          ]
+        },
+        {
+          "id": "51gYPb8diS",
+          "kind": "divider",
+          "direction": "horizontal",
+          "align": "middle",
+          "style": {
+            "color": "#4e6f8f",
+            "width": 4,
+            "strokeStyle": "solid"
+          }
+        },
+        {
+          "id": "HIM9FHhrlA",
+          "kind": "text",
+          "body": "**Supporting Tables**"
+        },
+        {
+          "id": "CUJjFMhfpv",
+          "kind": "divider",
+          "direction": "horizontal",
+          "align": "middle",
+          "style": {
+            "color": "#4e6f8f",
+            "width": 4,
+            "strokeStyle": "solid"
+          }
+        },
+        {
+          "id": "p2-spend-cat",
+          "kind": "table",
+          "source": {
+            "elementId": "p2-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "sc-cat",
+              "formula": "[Transactions/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "sc-actual",
+              "formula": "Sum([Transactions/Spend Amount])",
+              "name": "Actual Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Spend by Category",
+          "groupings": [
+            {
+              "id": "g-sc",
+              "groupBy": [
+                "sc-cat"
+              ],
+              "calculations": [
+                "sc-actual"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "p2-budget",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "rcXY2eQDWy",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "bd-month",
+              "formula": "[WD_PF_BUDGETS/Budget Month]",
+              "name": "Budget Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            },
+            {
+              "id": "bd-cat",
+              "formula": "[WD_PF_BUDGETS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "bd-amt",
+              "formula": "[WD_PF_BUDGETS/Budget Amount]",
+              "name": "Budget Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "bd-actual",
+              "formula": "Lookup([Spend by Category/Actual Spend], [Category], [Spend by Category/Category])",
+              "name": "Actual Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Budget Detail",
+          "order": [
+            "bd-month",
+            "bd-cat",
+            "bd-amt",
+            "bd-actual"
+          ]
+        },
+        {
+          "id": "p2-tx",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "hYt7KPP96e",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "tx-transaction-id",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "tx-transaction-date",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "tx-account-name",
+              "formula": "[WD_PF_TRANSACTIONS/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "tx-category",
+              "formula": "[WD_PF_TRANSACTIONS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "tx-subcategory",
+              "formula": "[WD_PF_TRANSACTIONS/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "tx-merchant",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "tx-merchant-city",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "tx-merchant-country",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "tx-channel",
+              "formula": "[WD_PF_TRANSACTIONS/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "tx-payment-method",
+              "formula": "[WD_PF_TRANSACTIONS/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "tx-is-recurring",
+              "formula": "[WD_PF_TRANSACTIONS/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "tx-amount",
+              "formula": "[WD_PF_TRANSACTIONS/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-transaction-type",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "tx-spend",
+              "formula": "If(In([Category], \"Income\", \"Transfer\"), 0, [Amount])",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-income",
+              "formula": "If([Category] = \"Income\", [Amount], 0)",
+              "name": "Income Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Transactions",
+          "order": [
+            "tx-transaction-id",
+            "tx-transaction-date",
+            "tx-account-name",
+            "tx-category",
+            "tx-subcategory",
+            "tx-merchant",
+            "tx-merchant-city",
+            "tx-merchant-country",
+            "tx-channel",
+            "tx-payment-method",
+            "tx-is-recurring",
+            "tx-amount",
+            "tx-transaction-type",
+            "tx-spend",
+            "tx-income"
+          ]
+        },
+        {
+          "id": "p2-txd",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "hYt7KPP96e",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "tx-transaction-id",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "tx-transaction-date",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "tx-account-name",
+              "formula": "[WD_PF_TRANSACTIONS/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "tx-category",
+              "formula": "[WD_PF_TRANSACTIONS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "tx-subcategory",
+              "formula": "[WD_PF_TRANSACTIONS/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "tx-merchant",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "tx-merchant-city",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "tx-merchant-country",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "tx-channel",
+              "formula": "[WD_PF_TRANSACTIONS/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "tx-payment-method",
+              "formula": "[WD_PF_TRANSACTIONS/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "tx-is-recurring",
+              "formula": "[WD_PF_TRANSACTIONS/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "tx-amount",
+              "formula": "[WD_PF_TRANSACTIONS/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-transaction-type",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "tx-spend",
+              "formula": "If(In([Category], \"Income\", \"Transfer\"), 0, [Amount])",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-income",
+              "formula": "If([Category] = \"Income\", [Amount], 0)",
+              "name": "Income Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Transactions Detail",
+          "order": [
+            "tx-transaction-id",
+            "tx-transaction-date",
+            "tx-account-name",
+            "tx-category",
+            "tx-subcategory",
+            "tx-merchant",
+            "tx-merchant-city",
+            "tx-merchant-country",
+            "tx-channel",
+            "tx-payment-method",
+            "tx-is-recurring",
+            "tx-amount",
+            "tx-transaction-type",
+            "tx-spend",
+            "tx-income"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-travel",
+      "name": "Travel & Geography",
+      "elements": [
+        {
+          "id": "p3-title",
+          "kind": "text",
+          "body": "# <span style=\"color: #005DAA\">**Travel & Geography**</span>\n\nWhere travel spend goes around the world",
+          "verticalAlign": "middle"
+        },
+        {
+          "kind": "control",
+          "controlId": "TravelCategory",
+          "id": "p3-ctrl-cat",
+          "name": "Category",
+          "filters": [
+            {
+              "source": {
+                "kind": "table",
+                "elementId": "p3-tx"
+              },
+              "columnId": "tx-category"
+            }
+          ],
+          "controlType": "list",
+          "mode": "include",
+          "selectionMode": "single",
+          "value": "Travel",
+          "source": {
+            "kind": "source",
+            "source": {
+              "kind": "table",
+              "elementId": "p3-tx"
+            },
+            "columnId": "tx-category"
+          }
+        },
+        {
+          "id": "p3-aid",
+          "kind": "text",
+          "body": "### <span style=\"color: #00A3A1\">\u2501\u2501</span> How to read this page\n\nThe **map** shades countries by travel spend; the **KPI** is travel spend so far this year; the **table** lists travel transactions. Defaults to the Travel category \u2014 change the control to explore another category geographically.",
+          "verticalAlign": "start"
+        },
+        {
+          "id": "p3-map",
+          "kind": "region-map",
+          "source": {
+            "elementId": "p3-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "mp-merchant-country",
+              "formula": "[Transactions/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "mp-spend",
+              "formula": "Sum([Transactions/Amount])",
+              "name": "Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "mp-spend-lbl",
+              "formula": "Sum([Transactions/Amount])",
+              "name": "Spend (label)",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "mp-transaction-id",
+              "formula": "[Transactions/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "mp-transaction-date",
+              "formula": "[Transactions/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "mp-account-name",
+              "formula": "[Transactions/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "mp-category",
+              "formula": "[Transactions/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "mp-subcategory",
+              "formula": "[Transactions/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "mp-merchant",
+              "formula": "[Transactions/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "mp-merchant-city",
+              "formula": "[Transactions/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "mp-channel",
+              "formula": "[Transactions/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "mp-payment-method",
+              "formula": "[Transactions/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "mp-is-recurring",
+              "formula": "[Transactions/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "mp-amount",
+              "formula": "[Transactions/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "mp-transaction-type",
+              "formula": "[Transactions/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "mp-spendamt",
+              "formula": "[Transactions/Spend Amount]",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "region": {
+            "id": "mp-merchant-country",
+            "regionType": "country"
+          },
+          "color": {
+            "by": "scale",
+            "column": "mp-spend"
+          },
+          "label": [
+            {
+              "id": "mp-spend-lbl"
+            }
+          ],
+          "name": {
+            "text": "Travel Spend by Country",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          }
+        },
+        {
+          "id": "p3-kpi-travel",
+          "kind": "kpi-chart",
+          "source": {
+            "elementId": "p3-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "p3-kpi-travel-val",
+              "formula": "Sum(If([Transactions/Category] = \"Travel\" and DatePart(\"year\", [Transactions/Transaction Date]) = DatePart(\"year\", Today()), [Transactions/Amount], 0))",
+              "name": "YTD Travel Spend",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.0f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "p3-kpi-travel-mo",
+              "formula": "DateTrunc(\"month\", [Transactions/Transaction Date])",
+              "name": "Month",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%b %Y"
+              }
+            }
+          ],
+          "value": {
+            "columnId": "p3-kpi-travel-val"
+          },
+          "name": {
+            "text": "YTD Travel Spend",
+            "color": "#005daa",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "description": {
+            "visibility": "hidden"
+          },
+          "layout": {
+            "anchor": "middle"
+          }
+        },
+        {
+          "id": "p6GPbbssmS",
+          "kind": "bar-chart",
+          "source": {
+            "elementId": "p3-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "61Nzg5qNrb",
+              "formula": "[Transactions/Merchant Country]"
+            },
+            {
+              "id": "fTK1mWEZpt",
+              "formula": "Sum([Amount])"
+            },
+            {
+              "id": "YxTJQQUHuY",
+              "formula": "[Transactions/Transaction Id]"
+            },
+            {
+              "id": "80HNJUqhWO",
+              "formula": "[Transactions/Transaction Date]"
+            },
+            {
+              "id": "_m02986J8Z",
+              "formula": "[Transactions/Account Name]"
+            },
+            {
+              "id": "YryhjQcNDo",
+              "formula": "[Transactions/Category]"
+            },
+            {
+              "id": "oHXa_4yml0",
+              "formula": "[Transactions/Subcategory]"
+            },
+            {
+              "id": "R596wEE6Ae",
+              "formula": "[Transactions/Merchant]"
+            },
+            {
+              "id": "9dFueyoFST",
+              "formula": "[Transactions/Merchant City]"
+            },
+            {
+              "id": "-L11t8NoRU",
+              "formula": "[Transactions/Channel]"
+            },
+            {
+              "id": "RcRGF6ci7u",
+              "formula": "[Transactions/Payment Method]"
+            },
+            {
+              "id": "ZGX9H7iLht",
+              "formula": "[Transactions/Is Recurring]"
+            },
+            {
+              "id": "-SJOW_pSA3",
+              "formula": "[Transactions/Amount]"
+            },
+            {
+              "id": "6a7Y_MpOaA",
+              "formula": "[Transactions/Transaction Type]"
+            },
+            {
+              "id": "421XHSl0Nm",
+              "formula": "[Transactions/Spend Amount]"
+            },
+            {
+              "id": "tjkiiijw1e",
+              "formula": "[Transactions/Income Amount]"
+            }
+          ],
+          "yAxis": {
+            "columnIds": [
+              "fTK1mWEZpt"
+            ]
+          },
+          "xAxis": {
+            "columnId": "61Nzg5qNrb",
+            "sort": {
+              "by": "fTK1mWEZpt",
+              "direction": "descending"
+            }
+          },
+          "orientation": "horizontal",
+          "name": "Travel Spend"
+        },
+        {
+          "id": "p3-detail",
+          "kind": "table",
+          "source": {
+            "elementId": "p3-tx",
+            "kind": "table"
+          },
+          "columns": [
+            {
+              "id": "td-date",
+              "formula": "[Transactions/Transaction Date]",
+              "name": "Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "td-merchant",
+              "formula": "[Transactions/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "td-city",
+              "formula": "[Transactions/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "td-country",
+              "formula": "[Transactions/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "td-subcategory",
+              "formula": "[Transactions/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "td-payment",
+              "formula": "[Transactions/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "td-amount",
+              "formula": "[Transactions/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": {
+            "text": "Travel Transactions",
+            "fontWeight": "bold",
+            "fontSize": 15
+          },
+          "order": [
+            "td-date",
+            "td-merchant",
+            "td-city",
+            "td-country",
+            "td-subcategory",
+            "td-payment",
+            "td-amount"
+          ]
+        },
+        {
+          "id": "xozLyFPscC",
+          "kind": "divider",
+          "direction": "horizontal",
+          "align": "middle",
+          "style": {
+            "color": "#4e6f8f",
+            "width": 4,
+            "strokeStyle": "solid"
+          }
+        },
+        {
+          "id": "XfdlEXCzkQ",
+          "kind": "text",
+          "body": "**Supporting Tables**"
+        },
+        {
+          "id": "0xfVNqIaD3",
+          "kind": "divider",
+          "direction": "horizontal",
+          "align": "middle",
+          "style": {
+            "color": "#4e6f8f",
+            "width": 4,
+            "strokeStyle": "solid"
+          }
+        },
+        {
+          "id": "p3-tx",
+          "kind": "table",
+          "source": {
+            "dataModelId": "83e36566-264f-41dd-8d43-ca7f1e5b9f19",
+            "elementId": "hYt7KPP96e",
+            "kind": "data-model"
+          },
+          "columns": [
+            {
+              "id": "tx-transaction-id",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Id]",
+              "name": "Transaction Id"
+            },
+            {
+              "id": "tx-transaction-date",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Date]",
+              "name": "Transaction Date",
+              "format": {
+                "kind": "datetime",
+                "formatString": "%d %b %Y"
+              }
+            },
+            {
+              "id": "tx-account-name",
+              "formula": "[WD_PF_TRANSACTIONS/Account Name]",
+              "name": "Account Name"
+            },
+            {
+              "id": "tx-category",
+              "formula": "[WD_PF_TRANSACTIONS/Category]",
+              "name": "Category"
+            },
+            {
+              "id": "tx-subcategory",
+              "formula": "[WD_PF_TRANSACTIONS/Subcategory]",
+              "name": "Subcategory"
+            },
+            {
+              "id": "tx-merchant",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant]",
+              "name": "Merchant"
+            },
+            {
+              "id": "tx-merchant-city",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant City]",
+              "name": "Merchant City"
+            },
+            {
+              "id": "tx-merchant-country",
+              "formula": "[WD_PF_TRANSACTIONS/Merchant Country]",
+              "name": "Merchant Country"
+            },
+            {
+              "id": "tx-channel",
+              "formula": "[WD_PF_TRANSACTIONS/Channel]",
+              "name": "Channel"
+            },
+            {
+              "id": "tx-payment-method",
+              "formula": "[WD_PF_TRANSACTIONS/Payment Method]",
+              "name": "Payment Method"
+            },
+            {
+              "id": "tx-is-recurring",
+              "formula": "[WD_PF_TRANSACTIONS/Is Recurring]",
+              "name": "Is Recurring"
+            },
+            {
+              "id": "tx-amount",
+              "formula": "[WD_PF_TRANSACTIONS/Amount]",
+              "name": "Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-transaction-type",
+              "formula": "[WD_PF_TRANSACTIONS/Transaction Type]",
+              "name": "Transaction Type"
+            },
+            {
+              "id": "tx-spend",
+              "formula": "If(In([Category], \"Income\", \"Transfer\"), 0, [Amount])",
+              "name": "Spend Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            },
+            {
+              "id": "tx-income",
+              "formula": "If([Category] = \"Income\", [Amount], 0)",
+              "name": "Income Amount",
+              "format": {
+                "kind": "number",
+                "formatString": "$,.2f",
+                "currencySymbol": "\u00a3"
+              }
+            }
+          ],
+          "name": "Transactions",
+          "order": [
+            "tx-transaction-id",
+            "tx-transaction-date",
+            "tx-account-name",
+            "tx-category",
+            "tx-subcategory",
+            "tx-merchant",
+            "tx-merchant-city",
+            "tx-merchant-country",
+            "tx-channel",
+            "tx-payment-method",
+            "tx-is-recurring",
+            "tx-amount",
+            "tx-transaction-type",
+            "tx-spend",
+            "tx-income"
+          ],
+          "sort": [
+            {
+              "columnId": "tx-spend",
+              "direction": "descending",
+              "nulls": "last"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-talktrack",
+      "name": "Talk Track & What's Next",
+      "elements": [
+        {
+          "id": "p4-title",
+          "kind": "text",
+          "body": "# <span style=\"color: #005DAA\">**Talk Track & What's Next**</span>",
+          "verticalAlign": "middle"
+        },
+        {
+          "id": "p4-story",
+          "kind": "text",
+          "body": "## The story\n\n- **Overview** \u2014 headline spend this month vs last, savings rate, net worth, subscription burden and travel-to-date, then seasonal spend overlaid by year and a net-worth trend.\n- **Category Deep Dive** \u2014 actual vs budget per category, a category\u2192subcategory\u2192month pivot, the transaction detail behind it, and payment-method mix.\n- **Travel & Geography** \u2014 travel spend mapped by country with the underlying trips.\n\nThe narrative: *am I spending within budget, is my net worth growing, and where is the money going?*",
+          "verticalAlign": "start"
+        },
+        {
+          "id": "p4-next",
+          "kind": "text",
+          "body": "## Shown live \u2014 not in this build\n\nThings the connector can't author but that demo live in Sigma:\n\n- **Write-back** \u2014 the *Add Expense / Adjust Budget* input table on Page 2, wired to an action that writes to the warehouse.\n- **Actions & workflows** \u2014 buttons to submit an expense, flag a transaction, or approve a budget change.\n- **AI / Ask Sigma** \u2014 natural-language questions over this same model (\"what did I spend on dining in Q2?\").\n\n*Write-back is wired live after this build.*",
+          "verticalAlign": "start"
+        }
+      ]
+    }
+  ],
+  "themeOverrides": {
+    "pageWidth": "large",
+    "space": {
+      "unit": "small"
+    },
+    "tableStyles": {
+      "preset": "presentation"
+    }
+  },
+  "layout": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Page type=\"grid\" gridTemplateColumns=\"repeat(24, 1fr)\" gridTemplateRows=\"auto\" id=\"page-overview\">\n  <LayoutElement elementId=\"DtK8wv7nSv\" gridColumn=\"1 / 3\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p1-title\" gridColumn=\"6 / 19\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p1-ctrl-date\" gridColumn=\"19 / 25\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p1-aid\" gridColumn=\"1 / 25\" gridRow=\"4 / 8\"/>\n  <LayoutElement elementId=\"p1-kpi-thismo\" gridColumn=\"1 / 5\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-kpi-lastmo\" gridColumn=\"5 / 9\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-kpi-savings\" gridColumn=\"9 / 13\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-kpi-networth\" gridColumn=\"13 / 17\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-kpi-subs\" gridColumn=\"17 / 21\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-kpi-travel\" gridColumn=\"21 / 25\" gridRow=\"8 / 17\"/>\n  <LayoutElement elementId=\"p1-trend\" gridColumn=\"1 / 13\" gridRow=\"17 / 31\"/>\n  <LayoutElement elementId=\"p1-networth-trend\" gridColumn=\"13 / 25\" gridRow=\"17 / 31\"/>\n  <LayoutElement elementId=\"p1-tx\" gridColumn=\"1 / 9\" gridRow=\"31 / 41\"/>\n  <LayoutElement elementId=\"p1-bal\" gridColumn=\"9 / 17\" gridRow=\"31 / 41\"/>\n  <LayoutElement elementId=\"p1-sub\" gridColumn=\"17 / 25\" gridRow=\"31 / 41\"/>\n</Page>\n<Page type=\"grid\" gridTemplateColumns=\"repeat(24, 1fr)\" gridTemplateRows=\"auto\" id=\"page-category\">\n  <LayoutElement elementId=\"p2-title\" gridColumn=\"1 / 19\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p2-ctrl-cat\" gridColumn=\"19 / 25\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p2-aid\" gridColumn=\"1 / 25\" gridRow=\"4 / 8\"/>\n  <LayoutElement elementId=\"p2-combo\" gridColumn=\"1 / 13\" gridRow=\"8 / 22\"/>\n  <LayoutElement elementId=\"p2-donut\" gridColumn=\"13 / 25\" gridRow=\"8 / 22\"/>\n  <LayoutElement elementId=\"p2-pivot\" gridColumn=\"1 / 25\" gridRow=\"22 / 36\"/>\n  <LayoutElement elementId=\"p2-detail\" gridColumn=\"1 / 25\" gridRow=\"36 / 50\"/>\n  <LayoutElement elementId=\"51gYPb8diS\" gridColumn=\"1 / 25\" gridRow=\"50 / 51\"/>\n  <LayoutElement elementId=\"HIM9FHhrlA\" gridColumn=\"1 / 25\" gridRow=\"51 / 52\"/>\n  <LayoutElement elementId=\"CUJjFMhfpv\" gridColumn=\"1 / 25\" gridRow=\"52 / 53\"/>\n  <LayoutElement elementId=\"p2-spend-cat\" gridColumn=\"1 / 9\" gridRow=\"54 / 62\"/>\n  <LayoutElement elementId=\"p2-budget\" gridColumn=\"9 / 25\" gridRow=\"54 / 62\"/>\n  <LayoutElement elementId=\"p2-tx\" gridColumn=\"1 / 13\" gridRow=\"62 / 72\"/>\n  <LayoutElement elementId=\"p2-txd\" gridColumn=\"13 / 25\" gridRow=\"62 / 72\"/>\n</Page>\n<Page type=\"grid\" gridTemplateColumns=\"repeat(24, 1fr)\" gridTemplateRows=\"auto\" id=\"page-travel\">\n  <LayoutElement elementId=\"p3-title\" gridColumn=\"1 / 19\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p3-ctrl-cat\" gridColumn=\"19 / 25\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p3-aid\" gridColumn=\"1 / 25\" gridRow=\"4 / 8\"/>\n  <LayoutElement elementId=\"p3-map\" gridColumn=\"1 / 17\" gridRow=\"8 / 24\"/>\n  <LayoutElement elementId=\"p3-kpi-travel\" gridColumn=\"17 / 25\" gridRow=\"8 / 16\"/>\n  <LayoutElement elementId=\"p6GPbbssmS\" gridColumn=\"17 / 25\" gridRow=\"16 / 24\"/>\n  <LayoutElement elementId=\"p3-detail\" gridColumn=\"1 / 25\" gridRow=\"24 / 40\"/>\n  <LayoutElement elementId=\"xozLyFPscC\" gridColumn=\"1 / 25\" gridRow=\"40 / 41\"/>\n  <LayoutElement elementId=\"XfdlEXCzkQ\" gridColumn=\"1 / 25\" gridRow=\"41 / 43\"/>\n  <LayoutElement elementId=\"0xfVNqIaD3\" gridColumn=\"1 / 25\" gridRow=\"43 / 44\"/>\n  <LayoutElement elementId=\"p3-tx\" gridColumn=\"1 / 25\" gridRow=\"44 / 55\"/>\n</Page>\n<Page type=\"grid\" gridTemplateColumns=\"repeat(24, 1fr)\" gridTemplateRows=\"auto\" id=\"page-talktrack\">\n  <LayoutElement elementId=\"p4-title\" gridColumn=\"1 / 25\" gridRow=\"1 / 4\"/>\n  <LayoutElement elementId=\"p4-story\" gridColumn=\"1 / 13\" gridRow=\"4 / 30\"/>\n  <LayoutElement elementId=\"p4-next\" gridColumn=\"13 / 25\" gridRow=\"4 / 30\"/>\n</Page>\n"
+}

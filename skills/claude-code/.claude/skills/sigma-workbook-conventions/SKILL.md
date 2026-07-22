@@ -605,6 +605,7 @@ than editing in place. Match your task to the closest exemplar below;
   - `data-model-sourced-cohort-pivot.json` — two-tier sourcing (raw → derived) + `Rollup` + weeks-since-first-action pivot. Clone for cohort/retention.
   - `data-model-sourced-multi-page-profitability-attrition.json` — 4-page reference with per-page source tables + `Lookup()` demographic passthrough.
   - `styled-card-dashboard.json` — five-recipe element styling system (card framing, accent borders, subtle controls). Paired with `.prompt.md`.
+  - `data-model-sourced-personal-finance-multipage.json` (2026-07-22) — 4-page, 43-element real build + user UI refinements. Clone for: grand-total `Rollup(agg, 1, 1)` point-in-time KPI, cross-element `Lookup()` actual-vs-budget combo with a current-month budget cap, `Text(DatePart("year",…))` seasonal overlay, `region-map` by country, dedicated base table to scope one control, and investigation-vs-supporting-tables separation. Paired with `.prompt.md`.
 - **Deprecated (kept for archaeological reference only):**
   - `data-model-sourced-kpi-overview-with-containers.json` — predates the 2026-07-02 KPI `value.columnId` fix + `controlId` collision rule. Do NOT clone verbatim; use `data-model-sourced-sales-command-center.json` instead.
 
