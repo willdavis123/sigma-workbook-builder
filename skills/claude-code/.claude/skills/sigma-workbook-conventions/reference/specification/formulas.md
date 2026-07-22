@@ -468,6 +468,24 @@ Rules of thumb from the verified build:
   the fact table so charts sourced from it don't fail
   `validate-spec.py`'s `passthrough-coverage` check.
 
+## Composite-key Lookup (month + dimension)
+
+`Lookup` matches on a **single** key. To match on TWO keys — e.g. *"actual spend
+in this month for this category"* — build a composite key string on both sides
+and look up on that:
+
+- On the aggregated source (a table grouped by month + category):
+  `Month Cat Key = DateFormat([Date], "%Y-%m") & "|" & [Category]`
+- On the consumer (one row per month + category, e.g. a monthly budget table):
+  the same `Month Cat Key = DateFormat([Budget Month], "%Y-%m") & "|" & [Category]`
+- Then: `Lookup([Spend by Month & Cat/Monthly Actual], [Month Cat Key], [Spend by Month & Cat/Month Cat Key])`
+
+Rows whose (month, category) has no source match return **null** — the correct
+behaviour for e.g. future budget months that have no actuals yet. A **category-
+only** lookup instead repeats the whole-category total on every month's row
+(including future ones) — a common bug. Verified 2026-07-22 on the personal-finance
+monthly budget-vs-actual (`reference/local-will-personal-finance.md`).
+
 ## Per-row windowed aggregations — `Rollup`
 
 `Rollup(<aggregate>, <partition-col>, <order-col>)` computes a
